@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Penjualan</title>
+    </head>
+    <body>
+        <h2>Form Penjualan</h2>
+        <h3>Daftar Barang</h3>
+        <ul>
+            <li th:each="barang : ${listBarang}">
+                <span th:text="${barang.namaBarang}"></span>
+                -
+                Rp
+                <span th:text="${barang.harga}"></span>
+            </li>
+        </ul>
+        <hr>
+        <h3>Daftar Customer</h3>
+        <ul>
+            <li th:each="customer : ${listCustomer}">
+                <span th:text="${customer.nama}"></span>
+            </li>
+        </ul>
+    </body>
+</html>

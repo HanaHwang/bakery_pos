@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Form Barang</title>
+    </head>
+    <body>
+        <h2>Form Barang</h2>
+        <form th:object="${barang}" th:action="${mode == 'edit'} ? @{/barang/update} : @{/barang/simpan}" method="post">
+            <input type="hidden" th:field="*{idBarang}">
+            
+            Nama Barang: 
+            <input type="text" th:field="*{namaBarang}"><br><br>
+
+            Harga: 
+            <input type="number" th:field="*{harga}"><br><br>
+
+            Stok: 
+            <input type="number" th:field="*{stok}"><br><br>
+
+            <button type="submit">Simpan</button>
+        </form>
+    </body>
+</html>

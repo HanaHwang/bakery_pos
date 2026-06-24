@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Form Customer</title>
+    </head>
+    <body>
+        <h2>Form Customer</h2>
+        <form th:object="${customer}" th:action="${mode == 'edit'} ? @{/customer/update} : @{/customer/simpan}" method="post">
+            <input type="hidden" th:field="*{idCustomer}">
+
+            Nama: 
+            <input type="text" th:field="*{nama}"><br><br>
+
+            No Telepon:
+            <input type="text" th:field="*{noTelp}"><br><br>
+
+            Poin: 
+            <input type="number" th:field="*{poin}"><br><br>
+
+            Expired Poin: 
+            <input type="date" th:field="*{expiredPoin}"><br><br>
+
+            <button type="submit">Simpan</button>
+        </form>
+    </body>
+</html>

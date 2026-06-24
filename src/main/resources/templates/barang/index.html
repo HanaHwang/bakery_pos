@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Data Barang</title>
+    </head>
+    <body>
+        <h2>Data Barang</h2>
+        <a th:href="@{/barang/tambah}">Tambah Barang</a><br><br>
+        <table border="1">
+            <tr>
+                <th>ID</th>
+                <th>Nama</th>
+                <th>Harga</th>
+                <th>Stok</th>
+                <th>Aksi</th>
+            </tr>
+
+            <tr th:each="barang : ${listBarang}">
+                <td th:text="${barang.idBarang}"></td>
+                <td th:text="${barang.namaBarang}"></td>
+                <td th:text="${barang.harga}"></td>
+                <td th:text="${barang.stok}"></td>
+                <td>
+                    <a th:href="@{/barang/edit/{id}(id=${barang.idBarang})}">Edit</a>
+                    |
+                    <a th:href="@{/barang/hapus/{id}(id=${barang.idBarang})}">Hapus</a>
+                </td>
+            </tr>
+        </table>
+        <br><a th:href="@{/dashboard}">Kembali</a>
+    </body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Login Bakery POS</title>
+    </head>
+    <body>
+        <h2>Login Bakery POS</h2>
+        <form th:action="@{/login}" method="post">
+            <label>No Telepon</label><br>
+            <input type="text" name="noTelp"><br><br>
+
+            <label>Password</label><br>
+            <input type="password" name="password"><br><br>
+
+            <button type="submit">Login</button>
+        </form>
+        <p th:if="${error}" th:text="${error}" style="color:red"></p>
+    </body>
+</html>
