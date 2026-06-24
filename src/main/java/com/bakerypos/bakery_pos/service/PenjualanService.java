@@ -53,18 +53,18 @@ public class PenjualanService {
         }
 
         penjualan.setSubtotal(subtotal);
-        int diskon = subtotal >= 10000 ? subtotal * 10 / 100 : 0;
+        int diskon = subtotal >= 100000 ? subtotal * 10 / 100 : 0;
         penjualan.setDiskon(diskon);
         int total = subtotal - diskon;
         penjualan.setTotalBayar(total);
-        penjualan.setPoinDigunakan(total / 10000);
+        penjualan.setPoinDidapatkan(total / 10000);
     }
 
     private void validasiStok(Penjualan penjualan){
         for(DetailPenjualan detail : penjualan.getDaftarDetail()){
             Barang barang = barangRepository.findById(detail.getBarang().getIdBarang()).orElseThrow();
             if(barang.getStok() < detail.getQty()){
-                throw new RuntimeException("Stok tidak cukup.");
+                throw new RuntimeException("Stok " + barang.getNamaBarang() + " tidak cukup.");
             }
             detail.setBarang(barang);
         }
