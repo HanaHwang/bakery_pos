@@ -27,14 +27,6 @@ public class User{
         this.role=role;
     }
 
-    public boolean isAdmin(){
-        return role != null && role.equalsIgnoreCase("admin");
-    }
-
-    public boolean isCashier(){
-        return role != null && role.equalsIgnoreCase("cashier");
-    }
-
     public int getIdUser(){
         return idUser;
     }
@@ -73,5 +65,13 @@ public class User{
 
     public void setRole(String role){
         this.role=role;
+    }
+
+    public boolean isAdmin(){
+        return role != null && role.equalsIgnoreCase("admin");
+    }
+
+    public boolean isCashier(){
+        return role != null && role.equalsIgnoreCase("cashier");
     }
 }
