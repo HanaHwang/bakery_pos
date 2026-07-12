@@ -1,32 +1,56 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Data Barang</title>
+        <meta charset="UTF-8">
+        <title>Sunflower POS - Data Barang</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
     </head>
-    <body>
-        <h2>Data Barang</h2>
-        <a th:href="@{/barang/tambah}">Tambah Barang</a><br><br>
-        <table border="1">
-            <tr>
-                <th>ID</th>
-                <th>Nama</th>
-                <th>Harga</th>
-                <th>Stok</th>
-                <th>Aksi</th>
-            </tr>
 
-            <tr th:each="barang : ${listBarang}">
-                <td th:text="${barang.idBarang}"></td>
-                <td th:text="${barang.namaBarang}"></td>
-                <td th:text="${barang.harga}"></td>
-                <td th:text="${barang.stok}"></td>
-                <td>
-                    <a th:href="@{/barang/edit/{id}(id=${barang.idBarang})}">Edit</a>
-                    |
-                    <a th:href="@{/barang/hapus/{id}(id=${barang.idBarang})}">Hapus</a>
-                </td>
-            </tr>
-        </table>
-        <br><a th:href="@{/dashboard}">Kembali</a>
+    <body>
+        <div class="container">
+            <h2>Daftar Inventory Barang</h2>
+            <p><a th:href="@{/dashboard}">Kembali ke Dashboard</a></p>
+
+            <div th:if="${session.userRole == 'admin'}" class="action-bar">
+                <a th:href="@{/barang/tambah}">Tambah Produk</a>
+            </div>
+
+            <form th:action="@{/barang}" method="get" class="search-form">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Cari nama produk..."/>
+                <button type="submit">Cari</button>
+                <a th:href="@{/barang}" th:if="${keyword != null}">Reset</a>
+            </form>
+
+            <table border="1" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nama Produk</th>
+                        <th>Harga</th>
+                        <th>Stok</th>
+                        <th>Deskripsi</th>
+                        <th th:if="${session.userRole == 'admin'}">Aksi Staf</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="b : ${listBarang}">
+                        <td th:text="${b.idBarang}"></td>
+                        <td th:text="${b.namaBarang}" class="text-bold"></td>
+                        <td th:text="'Rp ' + ${#numbers.formatInteger(b.harga, 0, 'POINT')}"></td>
+
+                        <td th:text="${b.stok}" th:classappend="${b.stok &lt; 5} ? 'low-stok' : ''"></td>
+                        <td th:text="${b.deskripsi}"></td>
+
+                        <td th:if="${session.userRole == 'admin'}">
+                            <a th:href="@{/barang/edit/{id}(id=${b.idBarang})}">Edit</a> | <a th:href="@{/barang/hapus/{id}(id=${b.idBarang})}" onclick="return confirm('Hapus produk ini?');" class="text-danger">Hapus</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(listBarang)}">
+                        <td th:colspan="${session.userRole == 'admin' ? 6 : 5}" class="text-center">Data Kosong</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </body>
 </html>

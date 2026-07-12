@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Laporan Penjualan</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+    </head>
+
+    <body>
+        <div class="container">
+            <h2>Laporan Ringkasan Penjualan (Admin Only)</h2>
+            <p><a th:href="@{/dashboard}">Kembali ke Dashboard</a></p>
+
+            <form th:action="@{/laporan}" method="get" class="search-form inline-control">
+                <div class="form-control">
+                    <label>Mulai Tanggal: </label>
+                    <input type="date" name="startDate" th:value="${startDate}"/>
+                </div>
+            
+                <div class="form-control">
+                    <label>Sampai Tanggal: </label>
+                    <input type="date" name="endDate" th:value="${endDate}"/>
+                </div>
+            
+                <div class="form-actions">
+                    <button type="submit">Filter Laporan</button>
+                    <a th:href="@{/laporan}" th:if="${startDate != null || endDate != null}">Reset</a>
+                </div>
+            </form>
+
+            <div class="customer-payment-block">
+                <div class="stat-card">
+                    <h3>Total Omset Pendapatan Bersih</h3>
+                    <div class="value" th:text="'Rp ' + ${#numbers.formatInteger(omsetTotal != null ? omsetTotal : 0, 0, 'POINT')}">Rp 0</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Volume Transaksi Sukses</h3>
+                    <div class="value" th:text="${jumlahTransaksi != null ? jumlahTransaksi : 0} + ' Transaksi'">0 Transaksi</div>
+                </div>
+            </div>
+
+            <h3>Rincian Transaksi Log (Sales Ledger Records)</h3>
+            <table border="1" class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID Invoice</th>
+                        <th>Waktu Pembelian</th>
+                        <th>Member Pelanggan</th>
+                        <th>Kasir Staff</th>
+                        <th>Metode Transaksi</th>
+                        <th>Total Bersih</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${filteredSalesList}">
+                        <td th:text="${p.idPenjualan}"></td>
+                        <td th:text="${#temporals.format(p.tanggal, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td th:text="${p.customer != null ? p.customer.nama : 'Umum (Non-Member)'}"></td>
+                        <td th:text="${p.user != null ? p.user.namaUser : 'System'}"></td>
+                        <td th:text="${p.metodePembayaran}"></td>
+                        <td th:text="'Rp ' + ${#numbers.formatInteger(p.totalBayar, 0, 'POINT')}" class="text-bold"></td>
+                        <td>
+                            <a th:href="@{/penjualan/detail/{id}(id=${p.idPenjualan})}">Lihat Nota</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(filteredSalesList)}">
+                        <td colspan="7" class="text-center">Tidak ada catatan data transaksi log pada periode ini.</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <br>
+
+            <h3>Rincian Item Kue &amp; Roti Paling Laris (Top Products)</h3>
+            <table border="1" class="data-table">
+                <thead>
+                    <tr>
+                        <th>Peringkat</th>
+                        <th>Nama Produk</th>
+                        <th>Jumlah Unit Terjual</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="row, iterStat : ${topProdukList}">
+                        <td th:text="${iterStat.count}">1</td>
+                        <td th:text="${row.namaBarang}" class="text-bold"></td>
+                        <td th:text="${row.qtyTerjual} + ' Pack'"></td>
+                    </tr>
+                    
+                    <tr th:if="${#lists.isEmpty(topProdukList)}">
+                        <td colspan="3" class="text-center">Tidak ada catatan data penjualan barang pada periode ini.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

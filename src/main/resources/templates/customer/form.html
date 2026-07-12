@@ -1,26 +1,36 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Form Customer</title>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Form Customer</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
     </head>
+
     <body>
-        <h2>Form Customer</h2>
-        <form th:object="${customer}" th:action="${mode == 'edit'} ? @{/customer/update} : @{/customer/simpan}" method="post">
-            <input type="hidden" th:field="*{idCustomer}">
+        <div class="container">
+            <h2 th:text="${customer.idCustomer == 0 ? 'Registrasi pelanggan' : 'Ubah data pelanggan'}"></h2>
+            <p><a th:href="@{/customer}">Batal</a></p>
 
-            Nama: 
-            <input type="text" th:field="*{nama}"><br><br>
+            <form th:action="@{/customer/simpan}" th:object="${customer}" method="post" class="form-container">
+                <input type="hidden" th:field="*{idCustomer}"/>
 
-            No Telepon:
-            <input type="text" th:field="*{noTelp}"><br><br>
+                <div class="form-control">
+                    <label for="nama">Nama Pelanggan: </label>
+                    <input type="text" th:field="*{nama}" required placeholder="Ketik nama pelanggan. . ."/>
+                </div>
 
-            Poin: 
-            <input type="number" th:field="*{poin}"><br><br>
+                <div class="form-control">
+                    <label for="noTelp">Nomor Telepon: </label>
+                    <input type="text" th:field="*{noTelp}" required placeholder="Contoh: 08XXXXXXXXXX. . ."/>
+                </div>
 
-            Expired Poin: 
-            <input type="date" th:field="*{expiredPoin}"><br><br>
+                <div type="hidden" th:field="*{poin}"/>
+                <div type="hidden" th:field="*{expiredPoin}"/>
 
-            <button type="submit">Simpan</button>
-        </form>
+                <div class="form-action">
+                    <button type="submit">Simpan</button>
+                </div>
+            </form>
+        </div>
     </body>
 </html>

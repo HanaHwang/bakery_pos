@@ -1,23 +1,42 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Form Barang</title>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Formulir Produk</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
     </head>
+
     <body>
-        <h2>Form Barang</h2>
-        <form th:object="${barang}" th:action="${mode == 'edit'} ? @{/barang/update} : @{/barang/simpan}" method="post">
-            <input type="hidden" th:field="*{idBarang}">
-            
-            Nama Barang: 
-            <input type="text" th:field="*{namaBarang}"><br><br>
+        <div class="container">
+            <h2 th:text="${barang.idBarang == 0} ? 'Tambah Produk Baru' : 'Ubah Data Produk'"></h2>
+            <p><a th:href="@{/barang}">Batal</a></p>
 
-            Harga: 
-            <input type="number" th:field="*{harga}"><br><br>
+            <form th:action="@{/barang/simpan}" th:object="${barang}" method="post" class="form-container">
+                <input type="hidden" th:field="*{idBarang}"/>
+                <div class="form-control">
+                    <label>Nama Produk: </label>
+                    <input type="text" th:field="*{namaBarang}" required/>
+                </div>
 
-            Stok: 
-            <input type="number" th:field="*{stok}"><br><br>
+                <div class="form-control">
+                    <label>Harga: </label>
+                    <input type="number" th:field="*{harga}" min="0" required/>
+                </div>
 
-            <button type="submit">Simpan</button>
-        </form>
+                <div class="form-control">
+                    <label>Stok: </label>
+                    <input type="number" th:field="*{stok}" min="0" required/>
+                </div>
+
+                <div class="form-control">
+                    <label>Deskripsi: </label>
+                    <textarea th:field="*{deskripsi}" required></textarea>
+                </div>
+
+                <div class="form-action">
+                    <button type="submit">Simpan</button>
+                </div>
+            </form>
+        </div>
     </body>
 </html>

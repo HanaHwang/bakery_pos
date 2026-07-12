@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Riwayat Penjualan</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+    </head>
+
+    <body>
+        <div class="container">
+            <h2>Riwayat Transaksi</h2>
+            <p>
+                <a th:href="@{/dashboard}">Lembali ke Dashboard</a> | <a th:href="@{/penjualan}">Tambah Penjualan</a>
+            </p>
+
+            <table border="1" class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID Invoice</th>
+                        <th>Waktu Pembelian</th>
+                        <th>Pelanggan Member</th>
+                        <th>Subtotal Kotor</th>
+                        <th>Potongan Diskon</th>
+                        <th>Total Pembayaran</th>
+                        <th>Metode Transaksi</th>
+                        <th>Opsi Kontrol</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="p : ${listPenjualan}">
+                        <td th:text="${p.idPenjualan}"></td>
+                        <td th:text="${#temporals.format(p.tanggal, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td th:text="${p.customer != null ? p.customer.nama : 'Umum (Tanpa Member)'}"></td>
+                        <td th:text="'Rp ' + ${#numbers.formatInteger(p.subtotal, 0, 'POINT')}"></td>
+                        <td th:text="'Rp ' + ${#numbers.formatInteger(p.diskon, 0, 'POINT')}"></td>
+                        <td th:text="'Rp ' + ${#numbers.formatInteger(p.totalBayar, 0, 'POINT')}" class="text-bold"></td>
+                        <td th:text="${p.metodePembayaran}"></td>
+                        <td>
+                            <a th:href="@{/penjualan/detail/{id}(id=${p.idPenjualan})}">Detail Nota</a>
+                            <span th:if="${session.userRole == 'admin'}"> | <a th:href="@{/penjualan/delete/{id}(id=${p.idPenjualan})}" onclick="return confirm('Apakah Anda yakin ingin membatalkan transaksi ini? Stok barang akan otomatis dikembalikan.');" class="text-danger">Batalkan</a></span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(listPenjualan)}">
+                        <td colspan="8" class="text-center">Belum ada riwayat transaksi penjualan yang tercatat.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

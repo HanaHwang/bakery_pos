@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Struk Transaksi</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+    </head>
+
+    <body>
+        <div class="container">
+            <p class="no-print"><a th:href="@{/penjualan/history}">Kembali ke Riwayat Daftar</a></p>
+
+            <div id="receiptFrame" class="receipt-print-area">
+                <h2 class="text-center">SUNFLOUR BAKERY &amp; PASTRY</h2>
+                <p class="text-center">Nota Kwitansi Bukti Pembayaran Resmi</p>
+                <hr class="dashed-line">
+            
+                <p><strong>ID Nota Invoice: </strong><span th:text="${penjualan.idPenjualan}"></span></p>
+                <p><strong>Waktu / Tanggal:</strong><span th:text="${#temporals.format(penjualan.tanggal, 'dd-MM-yyyy HH:mm')}"></span></p>
+                <p><strong>Kasir Staff: </strong><span th:text="${penjualan.user != null ? penjualan.user.namaUser : 'Petugas Kasir'}"></span></p>
+                <p><strong>Pelanggan: </strong><span th:text="${penjualan.customer != null ? penjualan.customer.nama : 'Umum (Bukan Member)'}"></span></p>
+                
+                <hr class="dashed-line">
+
+                <table border="0" class="receipt-table">
+                    <thead>
+                        <tr>
+                            <th>Item Roti</th>
+                            <th>Harga</th>
+                            <th>Jumlah</th>
+                            <th class="text-right">Subtotal</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        <tr th:each="detail : ${penjualan.daftarDetail}">
+                            <td th:text="${detail.barang.namaBarang}"></td>
+                            <td th:text="'Rp ' + ${#numbers.formatInteger(detail.hargaSatuan, 0, 'POINT')}"></td>
+                            <td th:text="${detail.qty}"></td>
+                            <td th:text="'Rp ' + ${#numbers.formatInteger(detail.subtotal, 0, 'POINT')}" class="text-right"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            
+                <hr class="dashed-line">
+                
+                <div class="receipt-totals">
+                    <p>Gross Subtotal: <span th:text="'Rp ' + ${#numbers.formatInteger(penjualan.subtotal, 0, 'POINT')}"></span></p>
+                    <p>Potongan Diskon: <span th:text="'Rp ' + ${#numbers.formatInteger(penjualan.diskon, 0, 'POINT')}"></span></p>
+                    <p>Poin Digunakan: <span th:text="${penjualan.poinDigunakan}"></span> Poin</p>
+                    <p class="text-bold">Total Pembayaran Bersih: <span th:text="'Rp ' + ${#numbers.formatInteger(penjualan.totalBayar, 0, 'POINT')}"></span></p>
+                </div>
+                
+                <hr class="dashed-line">
+                
+                <p th:if="${penjualan.customer != null}" class="text-center text-italic">Selamat! Anda mendapatkan tambahan +<span th:text="${penjualan.poinDidapatkan}"></span> Poin loyalty member.</p>
+                <p class="text-center text-bold">~˚ʚ Terima Kasih Atas Kunjungan Anda ɞ˚~</p>
+            </div>
+
+            <div class="form-actions no-print">
+                <button type="button" class="btn-print" onclick="window.print()">Cetak Struk Belanja</button>
+            </div>
+        </div>
+    </body>
+</html>

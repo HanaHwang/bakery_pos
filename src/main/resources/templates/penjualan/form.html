@@ -1,25 +1,176 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Penjualan</title>
+        <meta cahrset="UTF-8">
+        <title>Sunflour POS - Transaksi Baru</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
     </head>
+
     <body>
-        <h2>Form Penjualan</h2>
-        <h3>Daftar Barang</h3>
-        <ul>
-            <li th:each="barang : ${listBarang}">
-                <span th:text="${barang.namaBarang}"></span>
-                -
-                Rp
-                <span th:text="${barang.harga}"></span>
-            </li>
-        </ul>
-        <hr>
-        <h3>Daftar Customer</h3>
-        <ul>
-            <li th:each="customer : ${listCustomer}">
-                <span th:text="${customer.nama}"></span>
-            </li>
-        </ul>
+        <div class="container">
+            <h2>Transaksi Baru</h2>
+            <p><a th:href="@{/dashboard}">Kembali ke Dashboard</a></p>
+
+            <div th:if="${sucessMessage != null}" class="alert-success" th:text="${successMesage}"></div>
+            <div th:if="${errorMessage != null}" class="alert-danger" th:text="${errorMessage}"></div>
+
+            <form th:action="@{/penjualan/save}" th:object="${penjualan}" method="post" id="posForm" class="form-container">
+                <div class="customer-payment-block">
+                    <div class="form-control">
+                        <label for="customer">Member Pelanggan: </label>
+                        <select th:field="*{customer.idCustomer}" id="customer">
+                            <option value="0">Pembelian Umum (Non-member)</option>
+                            <option th:each="c : ${listCustomer}" th:value="${c.idCustomer}" th:text="${c.nama + '(Poin: ' + c.poin + ')'}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label for="metodePembayaran">Metode Pembayaran: </label>
+                        <select th:field="*{metodePembayaran}" id="metodePembayaran" required>
+                            <option value="CASH">Tunai (cash)</option>
+                            <option value="QRIS">QRIS</option>
+                            <option value="DEBIT">Kartu Kredit</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3>Daftar Belanja</h3>
+                <table border="1" id="cartTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>Jumlah (qty)</th>
+                            <th>Harga Satuan</th>
+                            <th>Subtotal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="cartBody">
+                        <tr class="item-row">
+                            <td>
+                                <select name="daftarDetail[0].barang.idBarang" class="item-select" onchange="updatePrice(this)" required>
+                                    <option value="">Pilih Produk</option>
+                                    <option th:each="b : ${listBarang}" th:value="${b.idBarang}" th:data-harga="${b.harga}" th:text="${b.namaBarang + ' (Stok ' + b.stok + ')'}"></option>
+                                </select>
+                            </td>
+
+                            <td>
+                                <input type="number" name="daftarDetail[0].qty" class="item-qty" min="1" value="1" oninput="calculateRowTotal(this)" required/>
+                            </td>
+
+                            <td>
+                                <span class="price-label">Rp 0</span>
+                            </td>
+
+                            <td>
+                                <span class="row-subtotal">Rp 0</span>
+                            </td>
+
+                            <td>
+                                <button type="button" class="text-danger" onclick="removeRow(this)">Hapus</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class=action-bar>
+                    <button type="button" class="btn-add-item" onclick="addNewRow()">Tambah Item</button>
+                </div>
+
+                <div class="summary-box">
+                    <div class="form-control inline-control">
+                        <label for="poinDigunakan">Potong poin customer: </label>
+                        <input type="number" th:field="*{poinDigunakan}" id="poinDigunakan" value="0" min="0" oninput="calculateGrandTotal()"/>
+                    </div>
+
+                    <hr>
+                    
+                    <div class="summary-row">
+                        <strong>Total kotor: </strong><span id="grossTotalText">Rp 0</span>
+                    </div>
+
+                    <div class="summary-row text-danger">
+                        <strong>Diskon potongan (10% &gt;= 100rb): </strong><span id="discountText">Rp 0</span>
+                    </div>
+
+                    <div class="summary-row grand-total-row">
+                        <strong>Total bayar bersih: </strong><span id="grandTotalText">Rp 0</span>
+                    </div>
+                </div>
+
+                <div class="form-action">
+                    <button type="submit" class="btn-submit-order">Selesaikan Transaksi &amp; Simpan</button>
+                </div>
+            </form>
+        </div>
+
+        <script>
+        let rowIndex = 1;
+        function updatePrice(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const harga = selectedOption.getAttribute('data-harga') || 0;
+            const row = selectElement.closest('tr');
+            row.querySelector('.price-label').innerText = 'Rp ' + parseInt(harga).toLocaleString('id-ID');
+            calculateRowTotal(row.querySelector('.item-qty'));
+        }
+
+        function calculateRowTotal(qtyInput) {
+            const row = qtyInput.closest('tr');
+            const select = row.querySelector('.item-select');
+            const selectedOption = select.options[select.selectedIndex];
+            const harga = selectedOption ? (selectedOption.getAttribute('data-harga') || 0) : 0;
+            const qty = qtyInput.value || 0;
+            const subtotal = harga * qty;
+            
+            row.querySelector('.row-subtotal').innerText = 'Rp ' + subtotal.toLocaleString('id-ID');
+            row.querySelector('.row-subtotal').setAttribute('data-value', subtotal);
+            calculateGrandTotal();
+        }
+
+        function calculateGrandTotal() {
+            let grossTotal = 0;
+            document.querySelectorAll('.row-subtotal').forEach(span => {
+                const val = parseInt(span.getAttribute('data-value')) || 0;
+                grossTotal += val;
+            });
+
+            let discount = grossTotal >= 100000 ? Math.floor(grossTotal * 0.1) : 0;
+            let pointsUsed = parseInt(document.getElementById('poinDigunakan').value) || 0;
+            let grandTotal = grossTotal - discount - pointsUsed;
+            if(grandTotal < 0) grandTotal = 0;
+
+            document.getElementById('grossTotalText').innerText = 'Rp ' + grossTotal.toLocaleString('id-ID');
+            document.getElementById('discountText').innerText = 'Rp ' + discount.toLocaleString('id-ID');
+            document.getElementById('grandTotalText').innerText = 'Rp ' + grandTotal.toLocaleString('id-ID');
+        }
+
+        function addNewRow() {
+            const tbody = document.getElementById('cartBody');
+            const templateRow = document.querySelector('.item-row').cloneNode(true);
+            
+            templateRow.querySelector('.item-select').setAttribute('name', `daftarDetail[${rowIndex}].barang.idBarang`);
+            templateRow.querySelector('.item-select').selectedIndex = 0;
+            templateRow.querySelector('.item-qty').setAttribute('name', `daftarDetail[${rowIndex}].qty`);
+            templateRow.querySelector('.item-qty').value = 1;
+            templateRow.querySelector('.price-label').innerText = 'Rp 0';
+            templateRow.querySelector('.row-subtotal').innerText = 'Rp 0';
+            templateRow.querySelector('.row-subtotal').setAttribute('data-value', '0');
+
+            tbody.appendChild(templateRow);
+            rowIndex++;
+        }
+
+        function removeRow(button) {
+            const rows = document.querySelectorAll('.item-row');
+            if(rows.length > 1) {
+                button.closest('tr').remove();
+                calculateGrandTotal();
+            } else {
+                alert('Minimal harus ada 1 jenis roti belanjaan!');
+            }
+        }
+    </script>
+
     </body>
 </html>

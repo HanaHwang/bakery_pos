@@ -1,31 +1,48 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Data Customer</title>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Data Customer</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
     </head>
-    <body>
-        <h2>Data Customer</h2>
-        <a th:href="@{/customer/tambah}">Tambah Customer</a><br><br>
-        <table border="1">
-            <tr>
-                <th>ID</th>
-                <th>Nama</th>
-                <th>No Telp</th>
-                <th>Poin</th>
-                <th>Aksi</th>
-            </tr>
 
-            <tr th:each="customer : ${listCustomer}">
-                <td th:text="${customer.idCustomer}"></td>
-                <td th:text="${customer.nama}"></td>
-                <td th:text="${customer.noTelp}"></td>
-                <td th:text="${customer.poin}"></td>
-                <td>
-                    <a th:href="@{/customer/edit/{id}(id=${customer.idCustomer})}">Edit</a>
-                    |
-                    <a th:href="@{/customer/hapus/{id}(id=${customer.idCustomer})}">Hapus</a>
-                </td>
-            </tr>
+    <body>
+        <div class="container">
+            <h2>Data Customer</h2>
+            <p><a th:href="@{/dashboard}">Kembali ke Dashboard</a></p>
+            <p><a th:href="@{/customer/tambah}">Registrasi pelanggan baru</a></p>
+      
+
+        <table border="1" class="data-table">
+            <thead>
+                <tr>
+                    <th>ID Pelanggan</th>
+                    <th>Nama Pelanggan</th>
+                    <th>Nomor Telepon</th>
+                    <th>Poin Loyalty</th>
+                    <th>Masa Berlaku Poin</th>
+                    <th th:if="${session.userRole == 'admin'}">Aksi Admin</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="c : ${listCustomer}">
+                    <td th:text="${c.idCustomer}"></td>
+                    <td th:text="${c.nama}" class="text-bold"></td>
+                    <td th:text="${c.noTelp}"></td>
+                    <td th:text="${c.poin}"></td>
+                    <td th:text="${c.expiredPoin != null ? #temporals.format(c.expiredPoin, 'dd-MM-yyyy') : '-'}"></td>
+
+                    <td th:if="${session.userRole == 'admin'}">
+                        <a th:href="@{/customer/edit/{id}(id=${c.idCustomer})}">Edit</a> | <a th:href="@{/customer/hapus/{id}(id=${c.idCustomer})}" onclick="return confirm('Apakah anda yakin ingin menghapus data customer?');" class="text-danger">Hapus</a>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(listCustomer)}">
+                    <td th:colspan="${session.userRole == 'admin' ? 6 : 5}" class="text-center">Data customer kosong.</td>
+                </tr>
+            </tbody>
         </table>
+        </div>
     </body>
 </html>
