@@ -1,11 +1,6 @@
 package com.bakerypos.bakery_pos.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="barang")
@@ -35,6 +30,17 @@ public class Barang{
         this.harga=harga;
         this.stok=stok;
         this.deskripsi=deskripsi;
+    }
+
+    public void tambahStok(int jumlah){
+        this.stok+=jumlah;
+    }
+
+    public void kurangiStok(int jumlah){
+        if(this.stok<jumlah){
+            throw new RuntimeException("Stok " + this.namaBarang + " tidak mencukupi.");
+        }
+        this.stok-=jumlah;
     }
 
     public int getIdBarang(){

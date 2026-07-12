@@ -1,6 +1,7 @@
 package com.bakerypos.bakery_pos.controller;
 
 import com.bakerypos.bakery_pos.model.Barang;
+import com.bakerypos.bakery_pos.model.User;
 import com.bakerypos.bakery_pos.service.BarangService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -15,48 +16,47 @@ public class BarangController{
         this.barangService = barangService;
     }
 
+    private boolean isNotAdmin(HttpSession session){
+        User user = (User) session.getAttribute("loggedInUser");
+        return user == null || !user.isAdmin();
+    }
+
     private boolean belumLogin(HttpSession session){
         return session.getAttribute("loggedInUser")==null;
     }
 
     @GetMapping
     public String index(Model model, HttpSession session){
-        if(belumLogin(session)){
-            return "redirect:/";
-        }
+        if(belumLogin(session)) return "redirect:/auth/login";
         model.addAttribute("listBarang", barangService.getAllBarang());
         return "barang/index";
     }
 
     @GetMapping("/tambah")
-    public String tambah(Model model){
+    public String tambah(Model model, HttpSession session){
+        if(isNotAdmin(session)) return "redirect:/dashboard";
         model.addAttribute("barang", new Barang());
-        model.addAttribute("mode", "tambah");
+        return "barang/form";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable int id, Model model, HttpSession session){
+        if(isNotAdmin(session)) return "redirect:/dashboard";
+        Barang barang = barangService.getBarangById(id);
+        model.addAttribute("barang", barang);
         return "barang/form";
     }
 
     @PostMapping("/simpan")
-    public String simpan(@ModelAttribute Barang barang){
-        barangService.save(barang);
-        return "redirect:/barang";
-    }
-
-    @GetMapping("/edit/{id}")
-    public String edit(@PathVariable int id, Model model){
-        Barang barang = barangService.getBarangById(id);
-        model.addAttribute("barang", barang);
-        model.addAttribute("mode", "edit");
-        return "barang/form";
-    }
-
-    @PostMapping("/update")
-    public String update(@ModelAttribute Barang barang){
+    public String simpan(@ModelAttribute Barang barang, HttpSession session){
+        if(isNotAdmin(session)) return "redirect:/dashboard";
         barangService.save(barang);
         return "redirect:/barang";
     }
 
     @GetMapping("/hapus/{id}")
-    public String hapus(@PathVariable int id){
+    public String hapus(@PathVariable int id, HttpSession session){
+        if(isNotAdmin(session)) return "redirect:/dashboard";
         barangService.delete(id);
         return "redirect:/barang";
     }

@@ -33,6 +33,31 @@ public class Customer{
         this.expiredPoin=expiredPoin;
     }
 
+    public boolean cekPoinValid(){
+        if(this.expiredPoin==null) return true;
+        return !LocalDate.now().isAfter(this.expiredPoin);
+    }
+
+    public void tambahPoin(int poinBaru){
+        if(!cekPoinValid()){
+            this.poin = 0;
+        }
+
+        this.poin+=poinBaru;
+        this.expiredPoin=LocalDate.now().plusDays(30); //poin valid for 1 month
+    }
+
+    public void gunakanPoin(int jumlahPoin){
+        if(!cekPoinValid()){
+            this.poin = 0;
+            throw new RuntimeException("Poin customer sudah kedaluwarsa.");
+        }
+        if(this.poin<jumlahPoin){
+            throw new RuntimeException("Poin customer tidak mencukupi.");
+        }
+        this.poin-=jumlahPoin;
+    }
+
     public int getIdCustomer(){
         return idCustomer;
     }
@@ -58,6 +83,7 @@ public class Customer{
     }
 
     public int getPoin(){
+        if(!cekPoinValid()) return 0;
         return poin;
     }
 

@@ -1,16 +1,11 @@
 package com.bakerypos.bakery_pos.service;
 
 import org.springframework.stereotype.Service;
-
-import com.bakerypos.bakery_pos.model.Barang;
-import com.bakerypos.bakery_pos.model.DetailPenjualan;
-import com.bakerypos.bakery_pos.model.Penjualan;
-import com.bakerypos.bakery_pos.repository.BarangRepository;
-import com.bakerypos.bakery_pos.repository.CustomerRepository;
-import com.bakerypos.bakery_pos.repository.PenjualanRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.bakerypos.bakery_pos.model.*;
+import com.bakerypos.bakery_pos.repository.*;
 import java.util.List;
-import com.bakerypos.bakery_pos.model.Customer;
 
 @Service
 @Transactional
@@ -34,10 +29,15 @@ public class PenjualanService {
     }
 
     public Penjualan save(Penjualan penjualan){
-        hitungTotal(penjualan);
-        validasiStok(penjualan);
-        updateStok(penjualan);
+        // processing item/validation, accumulates subtotal, reduce stocks
+        int subtotal = procesItemDanStok(penjualan);
+
+        // calculate
+        hitungTotalKeuangan(penjualan, subtotal);
+
+        //update info customers
         updatePoinCustomer(penjualan);
+
         return penjualanRepository.save(penjualan);
     }
 
@@ -45,46 +45,55 @@ public class PenjualanService {
         penjualanRepository.deleteById(id);
     }
 
-    private void hitungTotal(Penjualan penjualan){
-        int subtotal=0;
-        for(DetailPenjualan detail : penjualan.getDaftarDetail()){
+    private int procesItemDanStok(Penjualan penjualan){
+        int acumulatedSubtotal = 0;
+        for(DetailPenjualan detail: penjualan.getDaftarDetail()){
             detail.setPenjualan(penjualan);
-            subtotal+=detail.getSubtotal();
-        }
 
-        penjualan.setSubtotal(subtotal);
-        int diskon = subtotal >= 100000 ? subtotal * 10 / 100 : 0;
-        penjualan.setDiskon(diskon);
-        int total = subtotal - diskon;
-        penjualan.setTotalBayar(total);
-        penjualan.setPoinDidapatkan(total / 10000);
-    }
+            // fetch db, manage entity state
+            Barang barang = barangRepository.findById(detail.getBarang().getIdBarang()).orElseThrow(()->new RuntimeException("Barang tidak ditemukan"));
 
-    private void validasiStok(Penjualan penjualan){
-        for(DetailPenjualan detail : penjualan.getDaftarDetail()){
-            Barang barang = barangRepository.findById(detail.getBarang().getIdBarang()).orElseThrow();
-            if(barang.getStok() < detail.getQty()){
+            //condition check
+            if(barang.getStok()<detail.getQty()){
                 throw new RuntimeException("Stok " + barang.getNamaBarang() + " tidak cukup.");
             }
+            
+            barang.setStok(barang.getStok()-detail.getQty());
             detail.setBarang(barang);
+
+            detail.setHargaSatuan(barang.getHarga());
+
+            acumulatedSubtotal += detail.getSubtotal();
         }
+        return acumulatedSubtotal;
     }
 
-    private void updateStok(Penjualan penjualan){
-        for(DetailPenjualan detail : penjualan.getDaftarDetail()){
-            Barang barang = detail.getBarang();
-            barang.setStok(barang.getStok() - detail.getQty());
-        }
+    private void hitungTotalKeuangan(Penjualan penjualan, int subtotal){
+        penjualan.setSubtotal(subtotal);
+
+        //10% discount if orders 100k>
+        int diskon = subtotal >=100000 ? subtotal * 10 / 100 : 0;
+        penjualan.setDiskon(diskon);
+
+        // deduct discoundt and point
+        int total = subtotal - diskon - penjualan.getPoinDigunakan();
+        if(total<0) total = 0;
+
+        penjualan.setTotalBayar(total);
+        penjualan.setPoinDidapatkan(total/10000);
     }
 
     private void updatePoinCustomer(Penjualan penjualan){
         Customer customer = penjualan.getCustomer();
-        if(customer == null) return;
-        Customer dbCustomer = customerRepository.findById(customer.getIdCustomer()).orElseThrow();
+        if(customer == null || customer.getIdCustomer() == 0) return;
+
+        Customer dbCustomer = customerRepository.findById(customer.getIdCustomer()).orElseThrow(()->new RuntimeException("Customer tidak ditemukan"));
+        
         int poinDipakai = penjualan.getPoinDigunakan();
         if(poinDipakai > dbCustomer.getPoin()){
             throw new RuntimeException("Poin customer tidak mencukupi.");
         }
+
         dbCustomer.setPoin(dbCustomer.getPoin() - poinDipakai + penjualan.getPoinDidapatkan());
     }
 }
