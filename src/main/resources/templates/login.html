@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Login Bakery POS</title>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Login Sistem</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
     </head>
+
     <body>
-        <h2>Login Bakery POS</h2>
-        <form th:action="@{/login}" method="post">
-            <label>No Telepon</label><br>
-            <input type="text" name="noTelp"><br><br>
+        <div class="container">
+            <h2>Login</h2>
+            <div th:if="${error != null}" class="alert-danger" th:text="${error}"></div>
+            <form th:action="@{/auth/login}" method="post" class="form-container">
+                <div class="form-control">
+                    <label for="noTelp">ID: </label>
+                    <input type="text" id="noTelp" name="noTelp" required placeholder="Ketik ID anda . . ."/>
+                </div>
 
-            <label>Password</label><br>
-            <input type="password" name="password"><br><br>
+                <div class="form-control">
+                    <label for="password">Password: </label>
+                    <input type="password" id="password" name="password" required placeholder="Ketik password anda . . ."/>
+                </div>
 
-            <button type="submit">Login</button>
-        </form>
-        <p th:if="${error}" th:text="${error}" style="color:red"></p>
+                <div class="form-action">
+                    <button type="submit">Continue</button>
+                </div>
+            </form>
+        </div>
     </body>
 </html>

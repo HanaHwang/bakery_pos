@@ -1,13 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Dashboard</title>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Dashboard</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
     </head>
+
     <body>
-        <h1>Bakery POS</h1>
-        <h3>Welcome, <span th:text="${user.namaUser}"></span></h3>
-        <hr>
-        <a th:href="@{/barang}">Data Barang</a><br><br>
-        <a th:href="@{/logout}">Logout</a>
+        <div class="container">
+            <h2>Dashboard</h2>
+            <div class="user-badge">Selamat Datang, <strong th:text="${session.userNama != null ? session.userNama : 'User'}">Nama</strong>(<span th:text="${session.userRole != null ? session.userRole : 'cashier'}">Role</span>) | <a th:href="@{/auth/logout}">Keluar</a>
+            </div>
+
+            <div class="dashboard-grid" th:if="${session.userRole == 'admin'}">
+                <div class="stat-card">
+                    <h3>Pendapatan Hari Ini</h3>
+                    <div class="value" th:text="'Rp ' + ${#numbers.formatInteger(totalSalesToday != null ? totalSalesToday : 0, 0, 'POINT')}">Rp 0</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Total Transaksi</h3>
+                    <div class="value" th:text="${countSalesToday != null ? countSalesToday : 0}">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Total Pelanggan</h3>
+                    <div class="value" th:text="${totalCustomers != null ? totalCustomers : 0}">0</div>
+                </div>
+
+                <div class="stat-card warning" th:if="${lowStokCount > 0}">
+                    <h3>Stok Menipis (&lt; 5)</h3>
+                    <div class="value" th:text="${lowStokCount}">0</div>
+                </div>
+            </div>
+
+            <h3>Menu Navigasi</h3>
+            <div class="menu-grid">
+                <a th:href="@{/penjualan}" class="menu-item">Transaksi Baru</a>
+
+                <div th:if="${session.userRole == 'admin'}" style="display: contents;">
+                    <a th:href="@{/barang}" class="menu-item secondary">Kelola Barang</a>
+                    <a th:href="@{/customer}" class="menu-item secondary">Kelola Data Customer</a>
+                    <a th:href="@{/user}" class="menu-item secondary">Kelola Data Staff</a>
+                    <a th:href="@{/laporan}" class="menu-item secondary">Laporan Penjualan</a>
+                </div>
+
+                <div th:if="${session.userRole == 'cashier'}" style="display: contents;">
+                    <a th:href="@{/customer}" class="menu-item secondary">Kelola Data Customer</a>
+                    <a th:href="@{/penjualan/history}" class="menu-item secondary">Riwayat Penjualan</a>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

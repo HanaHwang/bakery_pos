@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Form Staff</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+    </head>
+
+    <body>
+        <div class="container">
+            <h2 th:text="${userForm.idUser == 0} ? 'Tambah data staff' : 'Ubah data staff'"></h2>
+            <p><a th:href="@{/user}">Batal</a></p>
+
+            <form th:action="@{/user/simpan}" th:object="${userForm}" method="post" class="form-container">
+                <input type="hidden" th:field="*{idUser}"/>
+
+                <div class="form-control">
+                    <label for="namaUser">Nama Lengkap Staff: </label>
+                    <input type="text" th:field="*{namaUser}" required placeholder="Ketik nama karyawan. . ."/>
+                </div>
+
+                <div class="form-control">
+                    <label for="noTelp">Nomor Telepon: </label>
+                    <input type="text" th:field="*{noTelp}" required placeholder="Contoh: 08XXXXXXXXXX. . ."/>
+                </div>
+
+                <div class="form-control">
+                    <label for="password">Password Login: </label>
+                    <input type="password" th:field="*{password}" required placeholder="Masukkan password. . . "/>
+                </div>
+
+                <div class="form-control">
+                    <label for="role">Peran: </label>
+                    <select th:field="*{role}" required>
+                        <option value="">Peran Staff</option>
+                        <option value="admin">Administrator</option>
+                        <option value="cashier">Kasir</option>
+                    </select>
+                </div>
+
+                <div class="form-action">
+                    <button type="submit">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

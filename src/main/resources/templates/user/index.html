@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Sunflour POS - Kelola Staff</title>
+        <link rel="stylesheet" th:href="@{/css/style.css}">
+    </head>
+
+    <body>
+        <div class="container">
+            <h2>Daftar Data Staff Karyawan</h2>
+            <p><a th:href="@{/dashboard}">Kembali ke Dashboard</a></p>
+
+            <div class="action-bar">
+                <a th:href="@{/user/tambah}">Tambah Data Staff</a>
+            </div>
+
+            <table border="1" class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID User</th>
+                        <th>Nama Lengkap</th>
+                        <th>Nomor Telepon</th>
+                        <th>Peran</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u : ${listUser}">
+                        <td th:text="${u.idUser}"></td>
+                        <td th:text="${u.namaUser}" class="text-bold"></td>
+                        <td th:text="${u.noTelp}"></td>
+                        <td th:text="${u.role}"></td>
+                        <td>
+                            <a th:href="@{/user/edit/{id}(id=${u.idUser})}">Edit</a>
+                            <a th:href="@{/user/hapus/{id}(id=${u.idUser})}" onclick="return confirm('Apakah anda yakin ingin menghapus data staff?');" class="text-danger">Hapus</a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(listUser)}">
+                        <td colspan="5" class="text-center">Data staff kosong.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
