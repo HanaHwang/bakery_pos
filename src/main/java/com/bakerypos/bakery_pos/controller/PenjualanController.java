@@ -5,7 +5,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.bakerypos.bakery_pos.model.Penjualan;
-import com.bakerypos.bakery_pos.model.DetailPenjualan;
 import com.bakerypos.bakery_pos.model.User;
 import com.bakerypos.bakery_pos.service.BarangService;
 import com.bakerypos.bakery_pos.service.CustomerService;

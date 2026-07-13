@@ -85,7 +85,10 @@ public class PenjualanService {
 
     private void updatePoinCustomer(Penjualan penjualan){
         Customer customer = penjualan.getCustomer();
-        if(customer == null || customer.getIdCustomer() == 0) return;
+        if(customer == null || customer.getIdCustomer() == 0){
+            penjualan.setCustomer(null);
+            return;
+        }
 
         Customer dbCustomer = customerRepository.findById(customer.getIdCustomer()).orElseThrow(()->new RuntimeException("Customer tidak ditemukan"));
         
